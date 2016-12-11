@@ -1,0 +1,72 @@
+{
+  "name": "devlog",
+  "version": "0.0.0",
+  "description": "A command line logging tool for recording thoughts/ideas/issues as a software developer (or anyone else who wants to write notes from the command line)",
+  "keywords": [
+    "developer",
+    "diary",
+    "journal",
+    "notes",
+    "notes"
+  ],
+  "license": "MIT",
+  "author": "Brett Uglow <u_glow@hotmail.com> (http://uglow.github.io/)",
+  "main": "bin/index.js",
+  "bin": {
+    "devlog": "bin/index.js"
+  },
+  "repository": {
+    "url": ""
+  },
+  "scripts": {
+    "pre-release": "npm-run-all verify test:coverage build ",
+    "build": "cross-env NODE_ENV=production npm run clean:prod",
+    "clean:prod": "rimraf dist/",
+    "dev": "cross-env NODE_ENV=development npm run verify:watch",
+    "start": "npm run dev",
+    "test": "npm run test:unit",
+    "test:check-coverage": "cross-env NODE_ENV=test istanbul check-coverage reports/coverage/coverage.json --config config/testUnit/istanbul.js",
+    "test:coverage": "npm-run-all test:unit:once test:check-coverage --silent",
+    "test:unit": "chokidar 'bin/**/*.js' 'test/**/*.js' -c 'npm run test:unit:once' --initial --silent",
+    "test:unit:once": "cross-env NODE_ENV=test istanbul cover --config config/testUnit/istanbul.js _mocha -- --opts config/testUnit/mocha.opts",
+    "upload-coverage": "cat reports/coverage/lcov/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "verify": "npm run verify:js --silent",
+    "verify:js": "eslint -c config/verify/.eslintrc \"bin/**/*.js\" \"test/**/*.js\" \"config/**/*.js\" && echo ✅ verify:js success",
+    "verify:js:fix": "eslint --fix -c config/verify/.eslintrc \"bin/**/*.js\" \"test/**/*.js\" \"config/**/*.js\" && echo ✅ verify:js:fix success",
+    "verify:js:watch": "chokidar 'bin/**/*.js' 'test/**/*.js' 'config/**/*.js' -c 'npm run verify:js:fix' --initial --silent",
+    "verify:watch": "npm run verify:js:watch --silent"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-customizable"
+    },
+    "cz-customizable": {
+      "config": "config/release/commitMessageConfig.js"
+    },
+    "ghooks": {
+      "pre-push": "npm-run-all verify test:coverage --silent",
+      "commit-msg": "./node_modules/cz-customizable-ghooks/lib/index.js $2"
+    }
+  },
+  "devDependencies": {
+    "chokidar-cli": "1.2.0",
+    "coveralls": "2.11.15",
+    "cross-env": "3.1.3",
+    "cz-customizable": "4.0.0",
+    "cz-customizable-ghooks": "1.3.0",
+    "eslint": "3.10.2",
+    "eslint-config-google": "0.7.0",
+    "eslint-plugin-node": "2.0.0",
+    "ghooks": "1.3.2",
+    "istanbul": "0.4.4",
+    "mocha": "2.5.3",
+    "npm-run-all": "3.1.0",
+    "rimraf": "2.5.4"
+  },
+  "engines": {
+    "node": ">=4.x"
+  },
+  "dependencies": {
+    "userhome": "1.0.0"
+  }
+}
