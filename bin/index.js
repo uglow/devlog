@@ -57,6 +57,10 @@ function captureInput(cb) {
 function addLogEntry(newData, cb, optionalDir) {
   let logFile = path.join(optionalDir || userhome('devlog'), LOG_FILE);
 
+  if (!newData.trim()) {
+    return cb('\nIgnoring blank log entry.');
+  }
+
   fs.readFile(logFile, 'utf8', function(error, existingData) {
     if (error && error.code !== 'ENOENT') {
       cb(error);
@@ -65,16 +69,14 @@ function addLogEntry(newData, cb, optionalDir) {
       if (existingData) {
         logEntry += existingData + '\n';
       }
-      fs.writeFile(logFile, logEntry, (err) => cb(err, logFile));
+      fs.writeFile(logFile, logEntry, (err) => cb(err || `\nLog saved to ${logFile}`));
     }
   });
 }
 
-function done(err, logFile) {
+function done(err) {
   if (err) {
-    console.error(err);
-  } else {
-    console.info(`\nLog saved to ${logFile}`);
+    console.info(err);
   }
   process.exit(0);
 }

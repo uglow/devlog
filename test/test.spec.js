@@ -46,9 +46,23 @@ describe('', () => {
       fs.mkdirSync(tmpDir);
       fs.writeFileSync(logFile, 'Existing file contents');
 
-      devlog.addLogEntry('New data', () => {
+      devlog.addLogEntry('New data', (msg) => {
         // Verify that the log file has not been changed
         assert(fs.readFileSync(logFile).toString().indexOf('New data\nExisting file contents') > -1);
+        assert.equal(msg, `\nLog saved to ${logFile}`);
+        done();
+      }, tmpDir);
+    });
+
+    it('should ignore blank entries', (done) => {
+      let logFile = path.join(tmpDir, 'devlog.md');
+      fs.mkdirSync(tmpDir);
+      fs.writeFileSync(logFile, 'Existing file contents');
+
+      devlog.addLogEntry('   \n  ', (msg) => {
+        // Verify that the log file has not been changed
+        assert(fs.readFileSync(logFile).toString() === 'Existing file contents');
+        assert.equal(msg, '\nIgnoring blank log entry.');
         done();
       }, tmpDir);
     });

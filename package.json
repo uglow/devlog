@@ -24,6 +24,7 @@
     "build": "cross-env NODE_ENV=production npm run clean:prod",
     "clean:prod": "rimraf dist/",
     "dev": "cross-env NODE_ENV=development npm run verify:watch",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "start": "npm run dev",
     "test": "npm run test:unit",
     "test:check-coverage": "cross-env NODE_ENV=test istanbul check-coverage reports/coverage/coverage.json --config config/testUnit/istanbul.js",
@@ -35,8 +36,7 @@
     "verify:js": "eslint -c config/verify/.eslintrc \"bin/**/*.js\" \"test/**/*.js\" \"config/**/*.js\" && echo ✅ verify:js success",
     "verify:js:fix": "eslint --fix -c config/verify/.eslintrc \"bin/**/*.js\" \"test/**/*.js\" \"config/**/*.js\" && echo ✅ verify:js:fix success",
     "verify:js:watch": "chokidar 'bin/**/*.js' 'test/**/*.js' 'config/**/*.js' -c 'npm run verify:js:fix' --initial --silent",
-    "verify:watch": "npm run verify:js:watch --silent",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "verify:watch": "npm run verify:js:watch --silent"
   },
   "config": {
     "commitizen": {
@@ -49,6 +49,9 @@
       "pre-push": "npm-run-all verify test:coverage --silent",
       "commit-msg": "./node_modules/cz-customizable-ghooks/lib/index.js $2"
     }
+  },
+  "dependencies": {
+    "userhome": "1.0.0"
   },
   "devDependencies": {
     "chokidar-cli": "1.2.0",
@@ -68,8 +71,5 @@
   },
   "engines": {
     "node": ">=4.x"
-  },
-  "dependencies": {
-    "userhome": "1.0.0"
   }
 }
