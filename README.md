@@ -3,7 +3,7 @@
 
 <!--[]-->
 <!--[RM_DESCRIPTION]-->
-> A command line logging tool for recording thoughts/ideas/issues as a software developer (or anyone else who wants to write notes from the command line)
+> A command line logging tool for recording thoughts/ideas/anything as a software developer (or anyone else who wants to write notes from the command line)
 
 <!--[]-->
 
@@ -28,12 +28,24 @@
 ## Usage
 
 ```
+$ devlog -?
+
+Usage: devlog <options>
+
+devlog           Create a log entry
+devlog -?        This help information
+devlog -p        Print the log from oldest-to-newest
+devlog -pr       Print the log from newest-to-oldest
+
+Log location: /users/dknuth/devlog.md
+
 $ devlog
 Add log entry: (press Ctrl+C when finished)
 > This is my first log entry
 > Just found a cool fix for when PhantomJS doesn't start...
 > [Ctrl+C]
-Log saved to /users/knuth/devlog.md
+Log saved to /users/dknuth/devlog.md
+
 ```
 
 <!--[RM_CONTRIBUTING]-->

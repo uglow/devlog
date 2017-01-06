@@ -19,6 +19,10 @@
     "type": "git",
     "url": "https://github.com/uglow/devlog.git"
   },
+  "files": [
+    "bin",
+    "*.md"
+  ],
   "scripts": {
     "pre-release": "npm-run-all verify test:coverage build ",
     "build": "cross-env NODE_ENV=production npm run clean:prod",
@@ -51,6 +55,8 @@
     }
   },
   "dependencies": {
+    "moment": "2.17.1",
+    "os-locale": "2.0.0",
     "userhome": "1.0.0"
   },
   "devDependencies": {
@@ -65,9 +71,11 @@
     "ghooks": "1.3.2",
     "istanbul": "0.4.4",
     "mocha": "2.5.3",
+    "mock-stdin": "0.3.1",
     "npm-run-all": "3.1.0",
     "rimraf": "2.5.4",
-    "semantic-release": "6.3.5"
+    "semantic-release": "6.3.5",
+    "test-console": "1.0.0"
   },
   "engines": {
     "node": ">=4.x"
