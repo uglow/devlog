@@ -7,44 +7,50 @@ const readline = require('readline');
 const userhome = require('userhome');
 const LOG_FILE = 'devlog.md';
 const HELP_CMD = '-?';
+const LOCAL_CMD = '-l';
+const LOCAL_MSG_CMD = '-m';
 const PRINT_CMD = '-p';
 const REVERSE_PRINT_CMD = '-pr';
 
 
-// Check if there is an existing log or note
-module.exports = {
-  getLogFile,
-  setupLog,
-  captureInput,
-  addLogEntry,
-  printLog,
-  printLogReverse,
-  showHelp,
-};
+/**
+ * DevLog - stores the name of the log file that is being used
+ * @param {string[]} args   - command line arguments
+ * @param {string} cwd      - current working directory (necessary for local devlogs)
+ * @param {string} logFile  - full path to the logfile to use
+ * @constructor
+ */
+function DevLog(
+  {
+    args = [],
+    cwd = '',
+    logFile = path.join(isLocalLog(args) ? cwd : userhome('devlog'), LOG_FILE),
+  }
+) {
+  this.logFile = logFile;
+  this.args = args;
+}
 
-function getLogFile(optionalDir) {
-  return path.join(optionalDir || userhome('devlog'), LOG_FILE);
+function isLocalLog(args) {
+  return args.indexOf(LOCAL_CMD) > -1 || args.indexOf(LOCAL_MSG_CMD) > -1;
 }
 
 
-function setupLog(optionalDir) {
-  // Try and create a log in the user's home directory if it doesn't already exist
-  let logDir = optionalDir || userhome('devlog');
-  let logFile = getLogFile(logDir);
-
+DevLog.prototype.setupLog = function() {
   try {
-    fs.statSync(logFile);
+    fs.statSync(this.logFile);
   } catch (err) {
     // Create directory & file
     try {
-      fs.mkdirSync(logDir);   // This could fail if the directory exists, which is fine
+      fs.mkdirSync(path.dirname(this.logFile)); // This could fail if the directory exists, which is fine
     } catch (err2) {}
-    fs.writeFileSync(logFile, '');
+    fs.writeFileSync(this.logFile, '');
   }
-}
+};
+
 
 // Async
-function captureInput(cb) {
+DevLog.prototype.captureInput = function(cb) {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -52,7 +58,7 @@ function captureInput(cb) {
   });
   let buffer = '';
 
-  console.log('Add log entry: (press Ctrl+C when finished)');
+  console.log(`Add log entry to ${this.logFile}: (press Ctrl+C when finished)`);
 
   rl.prompt();
 
@@ -63,30 +69,29 @@ function captureInput(cb) {
   }).on('close', () => {
     cb(buffer);
   });
-}
+};
+
 
 // Async
-function addLogEntry(newData, cb, optionalDir) {
-  let logFile = getLogFile(optionalDir);
-
+DevLog.prototype.addLogEntry = function(newData, cb) {
   if (!newData.trim()) {
     return cb('\nIgnoring blank log entry.');
   }
 
-  readLogFile(logFile, cb, (logFile, existingData, cb) => {
+  readLogFile(this.logFile, cb, (logFile, existingData, cb) => {
     let logEntry = '# ' + getLocaleString() + '\n' + newData.trim() + '\n\n';
 
     if (existingData) {
       logEntry += existingData + '\n';
     }
-    fs.writeFile(logFile, logEntry.trim(), (err) => cb(err || `\nLog saved to ${logFile}\nType "devlog ${PRINT_CMD}" to print the log`));
+    fs.writeFile(logFile, logEntry.trim(), (err) => cb(err || `\nLog saved to ${logFile}\nType "devlog ${PRINT_CMD}${isLocalLog(this.args) ? ' ' + LOCAL_CMD : ''}" to print the log`));
   });
-}
+};
 
 // Private
 function readLogFile(logFile, doneCB, fileProcessor) {
   fs.readFile(logFile, 'utf8', function(error, existingData) {
-    if (error && error.code !== 'ENOENT') {   // Don't worry if the file does not exist, but for all other errors, bail
+    if (error && error.code !== 'ENOENT') { // Don't worry if the file does not exist, but for all other errors, bail
       doneCB(error);
     } else {
       fileProcessor(logFile, existingData, doneCB);
@@ -94,65 +99,84 @@ function readLogFile(logFile, doneCB, fileProcessor) {
   });
 }
 
+
 function getLocaleString() {
   let locale = require('os-locale').sync(); // Returns dates with '_' delimited locale fragments.
   const moment = require('moment');
 
-  moment.locale(locale);              // Set the correct locale
-  return moment().format('l, LTS');    // http://momentjs.com/docs/#/displaying/format/
+  moment.locale(locale); // Set the correct locale
+  return moment().format('l, LTS'); // http://momentjs.com/docs/#/displaying/format/
 }
 
 
-function printLogReverse(cb, optionalDir) {
+DevLog.prototype.printLogReverse = function(cb) {
   // Display the newest first
-  readLogFile(getLogFile(optionalDir), cb, (logFile, existingData, cb) => {
+  readLogFile(this.logFile, cb, (logFile, existingData, cb) => {
     console.log(existingData);
     cb();
   });
-}
+};
 
 
-function printLog(cb, optionalDir) {
+DevLog.prototype.printLog = function(cb) {
   // Display the oldest first
 
-  readLogFile(getLogFile(optionalDir), cb, (logFile, existingData, cb) => {
-    let chunks = existingData.split(/^#/m).reverse();   // Split on all lines starting with '#'
+  readLogFile(this.logFile, cb, (logFile, existingData, cb) => {
+    let chunks = existingData.split(/^#/m).reverse(); // Split on all lines starting with '#'
     chunks.pop(); // This is an empty element
-    console.log('#' + chunks.join('#'));
+    chunks[0] += '\n\n'; // Add space to the end of the last element (which is now the first element)
+    console.log('#' + chunks.join('#').trim());
     cb();
   });
-}
+};
 
-
-function done(err) {
+/* istanbul ignore next */
+function handleError(err) {
   if (err) {
     console.info(err);
   }
-  process.exit(0);
 }
 
 
-function showHelp() {
+DevLog.prototype.showHelp = function() {
   console.log('\nUsage: devlog <options>\n');
-  console.log('devlog           Create a log entry');
+  console.log('devlog           Create a log entry in the global devlog');
   console.log(`devlog ${HELP_CMD}        This help information`);
+  console.log(`devlog ${LOCAL_CMD}        Create a log entry in the local devlog in the current directory`);
+  console.log(`devlog ${LOCAL_MSG_CMD} "msg"  Add "msg" to the devlog in the current directory`);
   console.log(`devlog ${PRINT_CMD}        Print the log from oldest-to-newest`);
   console.log(`devlog ${REVERSE_PRINT_CMD}       Print the log from newest-to-oldest\n`);
 
-  console.log(`Log location: ${getLogFile()}`);
-}
+  console.log(`Global log location: ${this.logFile}`);
+};
+
+
+DevLog.prototype.run = function() {
+  this.setupLog();
+
+  if (this.args.indexOf(HELP_CMD) > -1) {
+    this.showHelp();
+  } else if (this.args.indexOf(LOCAL_MSG_CMD) > -1) {
+    // Args will look like this: ['-m', 'foo bar']
+    let argIndex = this.args.indexOf(LOCAL_MSG_CMD);
+    let data = (this.args.length > argIndex + 1) ? this.args[argIndex + 1] : '';
+    this.addLogEntry(data, handleError);
+  } else if (this.args.indexOf(PRINT_CMD) > -1) {
+    this.printLog(handleError);
+  } else if (this.args.indexOf(REVERSE_PRINT_CMD) > -1) {
+    this.printLogReverse(handleError);
+  } else {
+    this.captureInput((data) => this.addLogEntry(data, handleError));
+  }
+};
+
+
+module.exports = DevLog;
+
 
 // If we're not in a test mode, execute the command
+/* istanbul ignore if */
 if (process.env.NODE_ENV !== 'test') {
-  setupLog();
-
-  if (process.argv.indexOf(HELP_CMD) > -1) {
-    showHelp();
-  } else if (process.argv.indexOf(REVERSE_PRINT_CMD) > -1) {
-    printLogReverse(done);
-  } else if (process.argv.indexOf(PRINT_CMD) > -1) {
-    printLog(done);
-  } else {
-    captureInput((data) => addLogEntry(data, done));
-  }
+  const devlog = new DevLog({args: process.argv, cwd: process.cwd()}); // This needs to be somewhere else so we can test it
+  devlog.run();
 }

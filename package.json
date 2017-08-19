@@ -27,15 +27,18 @@
     "pre-release": "npm-run-all verify test:coverage build ",
     "build": "cross-env NODE_ENV=production npm run clean:prod",
     "clean:prod": "rimraf dist/",
+    "commit-msg": "cz-customizable-ghooks",
     "dev": "cross-env NODE_ENV=development npm run verify:watch",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "start": "npm run dev",
+    "_test": "npm run test:unit",
+    "pre-push": "npm-run-all verify test:coverage --silent",
     "test": "npm run test:unit",
-    "test:check-coverage": "cross-env NODE_ENV=test istanbul check-coverage reports/coverage/coverage.json --config config/testUnit/istanbul.js",
+    "test:check-coverage": "nyc check-coverage",
     "test:coverage": "npm-run-all test:unit:once test:check-coverage --silent",
-    "test:unit": "chokidar 'bin/**/*.js' 'test/**/*.js' -c 'npm run test:unit:once' --initial --silent",
-    "test:unit:once": "cross-env NODE_ENV=test istanbul cover --config config/testUnit/istanbul.js _mocha -- --opts config/testUnit/mocha.opts",
-    "upload-coverage": "cat reports/coverage/lcov/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "test:unit": "cross-env NODE_ENV=test nyc mocha --opts config/mocha.opts -w",
+    "test:unit:once": "cross-env NODE_ENV=test nyc mocha --opts config/mocha.opts",
+    "upload-coverage": "nyc report --reporter=text-lcov | coveralls",
     "verify": "npm run verify:js --silent",
     "verify:js": "eslint -c config/verify/.eslintrc \"bin/**/*.js\" \"test/**/*.js\" \"config/**/*.js\" && echo ✅ verify:js success",
     "verify:js:fix": "eslint --fix -c config/verify/.eslintrc \"bin/**/*.js\" \"test/**/*.js\" \"config/**/*.js\" && echo ✅ verify:js:fix success",
@@ -48,36 +51,32 @@
     },
     "cz-customizable": {
       "config": "config/release/commitMessageConfig.js"
-    },
-    "ghooks": {
-      "pre-push": "npm-run-all verify test:coverage --silent",
-      "commit-msg": "./node_modules/cz-customizable-ghooks/lib/index.js $2"
     }
   },
   "dependencies": {
     "moment": "2.17.1",
-    "os-locale": "2.0.0",
+    "os-locale": "2.1.0",
     "userhome": "1.0.0"
   },
   "devDependencies": {
     "chokidar-cli": "1.2.0",
-    "coveralls": "2.11.15",
-    "cross-env": "3.1.3",
-    "cz-customizable": "4.0.0",
-    "cz-customizable-ghooks": "1.3.0",
-    "eslint": "3.10.2",
-    "eslint-config-google": "0.7.0",
-    "eslint-plugin-node": "2.0.0",
-    "ghooks": "1.3.2",
-    "istanbul": "0.4.4",
-    "mocha": "2.5.3",
+    "coveralls": "2.13.1",
+    "cross-env": "5.0.5",
+    "cz-customizable": "5.2.0",
+    "cz-customizable-ghooks": "1.5.0",
+    "eslint": "4.5.0",
+    "eslint-config-google": "0.9.1",
+    "eslint-plugin-node": "5.1.1",
+    "husky": "0.14.3",
+    "mocha": "3.5.0",
     "mock-stdin": "0.3.1",
-    "npm-run-all": "3.1.0",
+    "npm-run-all": "4.0.2",
+    "nyc": "11.1.0",
     "rimraf": "2.5.4",
-    "semantic-release": "6.3.5",
+    "semantic-release": "7.0.2",
     "test-console": "1.0.0"
   },
   "engines": {
-    "node": ">=4.x"
+    "node": ">=6.x"
   }
 }
