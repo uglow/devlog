@@ -32,12 +32,14 @@ $ devlog -?
 
 Usage: devlog <options>
 
-devlog           Create a log entry
+devlog           Create a log entry in the global devlog
 devlog -?        This help information
+devlog -l        Create a log entry in the local devlog in the current directory
+devlog -m "msg"  Add "msg" to the devlog in the current directory
 devlog -p        Print the log from oldest-to-newest
 devlog -pr       Print the log from newest-to-oldest
 
-Log location: /users/dknuth/devlog.md
+Global log location: /users/dknuth/devlog/devlog.md
 
 $ devlog
 Add log entry: (press Ctrl+C when finished)
