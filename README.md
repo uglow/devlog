@@ -46,7 +46,7 @@ Add log entry: (press Ctrl+C when finished)
 > This is my first log entry
 > Just found a cool fix for when PhantomJS doesn't start...
 > [Ctrl+C]
-Log saved to /users/dknuth/devlog.md
+Log saved to /users/dknuth/devlog/devlog.md
 
 ```
 
