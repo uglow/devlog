@@ -4,31 +4,66 @@
 name: Node.js Package
 
 on:
-  release:
-    types: [created]
+  pull_request:
+  push:
+    branches: [ master ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Run the steps below with the following versions of Node.js
+        node-version: [ 14.x, 16.x ]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
         with:
-          node-version: 14
-      - run: npm ci
-      - run: npm test
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: npm ci
+      - name: Test
+        run: npm run test:coverage
+      - name: Lint
+        run: npm run lint
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./reports/coverage/lcov.info
+          parallel: true
 
-  publish-npm:
-    needs: build
+  test-finished:
+    needs: [ test ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
         with:
-          node-version: 14
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm publish
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
+
+  release:
+    # Only release on push to master
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    # Waits for test jobs for each Node.js version to complete
+    needs: [ test ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+      - name: Install
+        run: npm ci
+      - name: Release
+        run: npx semantic-release
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
