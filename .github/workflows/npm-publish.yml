@@ -28,8 +28,22 @@ jobs:
         run: npm run test:coverage
       - name: Lint
         run: npm run lint
-      - name: Upload coverage
-        run: npm run upload-coverage
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./reports/coverage/lcov.info
+          parallel: true
+
+  test-finished:
+    needs: [ test ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
 
   release:
     # Only release on push to master
