@@ -38,6 +38,20 @@ Log saved to /users/dknuth/devlog/devlog.md
 
 ```
 
+## Troubleshooting
+
+### The date-stamp is in the wrong format!
+
+The current version of `devlog` requires Node 14+, which contains the full set of
+Internationalisation Components for Unicode (ICU). However, it is possible to 
+install Node 14+ **without** Full ICU support. In this case, the default locale (en-US?)
+is used by Node, even when `devlog` detects the operating system's actual locale.
+
+To fix this, ensure you install Node 14+ **with full ICU support** (the default build).
+Alternatively, you can try installing the [full-icu](https://www.npmjs.com/package/full-icu)
+package (which has instructions for getting it working).
+
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
