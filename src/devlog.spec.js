@@ -6,6 +6,7 @@ import fs from 'fs';
 import { Readable } from 'stream';
 import userhome from 'userhome';
 import { fileURLToPath } from 'url';
+import osLocale from 'os-locale';
 
 describe('DevLog', () => {
   describe('constructor()', () => {
@@ -20,6 +21,12 @@ describe('DevLog', () => {
 
       expect(devlog.logFile).toEqual(path.join('/foo/bar', 'devlog.md'));
     });
+  });
+
+  it('should use osLocale', () => {
+    const locale = osLocale.sync();
+    console.log('locale', locale, '__');
+    expect(locale).toEqual('foo');
   });
 
   describe('file operations', () => {
