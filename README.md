@@ -1,6 +1,6 @@
 # devlog
 
-> A command line logging tool for recording thoughts/ideas/anything as a software developer (or anyone else who wants to write notes from the command line)
+> A command line diary-entry tool for recording thoughts/ideas/anything from your terminal
 
 [![NPM Version](https://img.shields.io/npm/v/devlog.svg?style=flat-square)](http://npm.im/devlog)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
