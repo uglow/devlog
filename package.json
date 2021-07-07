@@ -1,6 +1,6 @@
 {
   "name": "devlog",
-  "version": "0.0.0-development",
+  "version": "2.1.0",
   "description": "A command line logging tool for recording thoughts/ideas/issues as a software developer (or anyone else who wants to write notes from the command line)",
   "keywords": [
     "developer",
