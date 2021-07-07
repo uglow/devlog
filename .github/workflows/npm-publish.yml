@@ -24,6 +24,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install
         run: npm ci
+      - name: List Env vars
+        run: env
       - name: Test
         run: npm run test:coverage
       - name: Lint
