@@ -40,7 +40,7 @@
       "path": "node_modules/cz-customizable"
     },
     "cz-customizable": {
-      "config": "commitMessageConfig.js"
+      "config": "commitMessageConfig.cjs"
     }
   },
   "dependencies": {
