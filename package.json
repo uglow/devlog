@@ -11,9 +11,10 @@
   ],
   "license": "MIT",
   "author": "Brett Uglow <u_glow@hotmail.com> (http://uglow.github.io/)",
-  "main": "bin/index.js",
+  "type": "module",
+  "exports": "./bin/cli.js",
   "bin": {
-    "devlog": "bin/index.js"
+    "devlog": "bin/cli.js"
   },
   "repository": {
     "type": "git",
@@ -21,63 +22,54 @@
   },
   "files": [
     "bin",
+    "src",
     "*.md"
   ],
   "scripts": {
     "commit-msg": "cz-customizable-ghooks",
-    "dev": "cross-env NODE_ENV=development npm run verify:watch",
-    "semantic-release": "semantic-release",
-    "start": "npm run dev",
-    "_test": "npm run test:unit",
+    "test": "npm run test:unit -- --watch",
+    "test:unit": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:coverage": "npm run test:unit -- --coverage",
+    "lint": "eslint --fix bin/* src/*",
+    "verify": "eslint --max-warnings=0 bin/ src/",
     "pre-push": "npm-run-all verify test:coverage --silent",
-    "test": "npm run test:unit",
-    "test:check-coverage": "nyc check-coverage",
-    "test:coverage": "npm-run-all test:unit:once test:check-coverage --silent",
-    "test:unit": "cross-env NODE_ENV=test nyc mocha --opts config/mocha.opts -w",
-    "test:unit:once": "cross-env NODE_ENV=test nyc mocha --opts config/mocha.opts",
-    "lint": "npm run verify:js --silent",
-    "verify:js": "eslint -c config/verify/.eslintrc \"bin/**/*.js\" \"test/**/*.js\" \"config/**/*.js\" && echo ✅ verify:js success",
-    "verify:js:fix": "eslint --fix -c config/verify/.eslintrc \"bin/**/*.js\" \"test/**/*.js\" \"config/**/*.js\" && echo ✅ verify:js:fix success",
-    "verify:js:watch": "chokidar 'bin/**/*.js' 'test/**/*.js' 'config/**/*.js' -c 'npm run verify:js:fix' --initial --silent",
-    "verify:watch": "npm run verify:js:watch --silent"
+    "semantic-release": "semantic-release"
   },
   "config": {
     "commitizen": {
       "path": "node_modules/cz-customizable"
     },
     "cz-customizable": {
-      "config": "config/release/commitMessageConfig.js"
+      "config": "commitMessageConfig.js"
     }
   },
   "dependencies": {
-    "moment": "2.29.1",
     "os-locale": "5.0.0",
     "userhome": "1.0.0"
   },
   "devDependencies": {
+    "@jest/globals": "27.0.6",
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/commit-analyzer": "8.0.1",
     "@semantic-release/git": "9.0.0",
     "@semantic-release/github": "7.2.3",
     "@semantic-release/npm": "7.1.3",
     "@semantic-release/release-notes-generator": "9.0.3",
-    "chokidar-cli": "1.2.0",
-    "cross-env": "5.0.5",
     "cz-customizable": "5.2.0",
-    "cz-customizable-ghooks": "1.5.0",
-    "eslint": "4.5.0",
-    "eslint-config-google": "0.9.1",
-    "eslint-plugin-node": "5.1.1",
-    "husky": "0.14.3",
-    "mocha": "3.5.0",
-    "mock-stdin": "0.3.1",
-    "npm-run-all": "4.0.2",
-    "nyc": "11.1.0",
-    "rimraf": "2.5.4",
+    "eslint": "7.30.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-jest": "24.3.6",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "3.4.0",
+    "eslint-plugin-unicorn": "34.0.1",
+    "husky": "7.0.0",
+    "jest": "27.0.6",
+    "npm-run-all": "4.1.5",
+    "prettier": "2.3.2",
     "semantic-release": "17.4.4",
-    "test-console": "1.0.0"
+    "test-console": "2.0.0"
   },
   "engines": {
-    "node": ">=12.x"
+    "node": ">=14.x"
   }
 }
