@@ -170,7 +170,7 @@ async function readLogFile(logFile, fileProcessor) {
 
 function getLocaleTimestamp() {
   const now = new Date();
-  const locale = osLocale.sync();
+  const locale = process.env.CI === 'true' ? undefined : osLocale.sync();
   return now.toLocaleDateString(locale) + ' ' + now.toLocaleTimeString(locale);
 }
 
