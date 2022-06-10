@@ -66,7 +66,7 @@
     "jest": "27.0.6",
     "npm-run-all": "4.1.5",
     "prettier": "2.3.2",
-    "semantic-release": "17.4.4",
+    "semantic-release": "19.0.3",
     "test-console": "2.0.0"
   },
   "engines": {
